@@ -19,6 +19,14 @@
     .sel-Pendiente { border-left: 4px solid #6366f1; } .sel-En_Revision { border-left: 4px solid #eab308; } .sel-Solucionado { border-left: 4px solid #10b981; }
     .skeleton-line { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: loadingSkeleton 1.5s infinite; height: 16px; border-radius: 4px; }
     @keyframes loadingSkeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    
+    /* Estilos para badges de riesgo */
+    .riesgo-Alto { background: #450a0a; color: #fca5a5; border: 1px solid #991b1b; }
+    .riesgo-Medio { background: #451a03; color: #fcd34d; border: 1px solid #92400e; }
+    .riesgo-Bajo { background: #052e16; color: #86efac; border: 1px solid #065f46; }
+    
+    .impacto-Si { background: #064e3b; color: #6ee7b7; border: 1px solid #065f46; }
+    .impacto-No { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -41,25 +49,75 @@
     </div>
   </header>
 
-  <div class="max-w-[1600px] mx-auto px-4 pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-    <div class="card-custom p-4 text-center"><p class="text-[11px] text-gray-400 uppercase font-bold tracking-wider">Total Casos Registrados</p><p class="text-2xl font-black font-mono mt-1 text-white" id="s-total">—</p></div>
-    <div class="card-custom p-4 text-center border-b-2 border-indigo-500"><p class="text-[11px] text-gray-400 uppercase font-bold tracking-wider">Riesgos Pendientes</p><p class="text-2xl font-black font-mono mt-1 text-indigo-400" id="s-pendiente">—</p></div>
-    <div class="card-custom p-4 text-center border-b-2 border-yellow-500"><p class="text-[11px] text-gray-400 uppercase font-bold tracking-wider">En Evaluación / Revisión</p><p class="text-2xl font-black font-mono mt-1 text-yellow-400" id="s-revision">—</p></div>
-    <div class="card-custom p-4 text-center border-b-2 border-emerald-500"><p class="text-[11px] text-gray-400 uppercase font-bold tracking-wider">Controles Certificados</p><p class="text-2xl font-black font-mono mt-1 text-emerald-400" id="s-solucionado">—</p></div>
+  <!-- ============ TARJETAS DE KPIs MEJORADAS ============ -->
+  <div class="max-w-[1600px] mx-auto px-4 pt-6 grid grid-cols-2 sm:grid-cols-5 gap-4 w-full">
+    <div class="card-custom p-4 text-center">
+      <p class="text-[11px] text-gray-400 uppercase font-bold tracking-wider">Total Casos</p>
+      <p class="text-2xl font-black font-mono mt-1 text-white" id="s-total">—</p>
+    </div>
+    <div class="card-custom p-4 text-center border-b-2 border-indigo-500">
+      <p class="text-[11px] text-gray-400 uppercase font-bold tracking-wider">Riesgos Pendientes</p>
+      <p class="text-2xl font-black font-mono mt-1 text-indigo-400" id="s-pendiente">—</p>
+    </div>
+    <div class="card-custom p-4 text-center border-b-2 border-yellow-500">
+      <p class="text-[11px] text-gray-400 uppercase font-bold tracking-wider">En Revisión</p>
+      <p class="text-2xl font-black font-mono mt-1 text-yellow-400" id="s-revision">—</p>
+    </div>
+    <div class="card-custom p-4 text-center border-b-2 border-emerald-500">
+      <p class="text-[11px] text-gray-400 uppercase font-bold tracking-wider">Solucionados</p>
+      <p class="text-2xl font-black font-mono mt-1 text-emerald-400" id="s-solucionado">—</p>
+    </div>
+    <div class="card-custom p-4 text-center border-b-2 border-red-500">
+      <p class="text-[11px] text-gray-400 uppercase font-bold tracking-wider">⚠️ Riesgo Alto</p>
+      <p class="text-2xl font-black font-mono mt-1 text-red-400" id="s-riesgo-alto">—</p>
+    </div>
   </div>
 
   <div id="contenedor-tabla" class="max-w-[1600px] mx-auto px-4 py-4 w-full flex-1 space-y-4">
     <div class="flex flex-wrap gap-3 items-center card-custom p-4">
-      <input class="input-dark w-64" type="text" id="buscar" placeholder="🔍 Buscar por Alumno, PC, Norma ISO..." oninput="filtrar()" />
-      <select class="input-dark" id="filtro-estado" onchange="filtrar()"><option value="">Todos los Estados</option><option>Pendiente</option><option>En Revisión</option><option>Solucionado</option></select>
-      <select class="input-dark" id="filtro-urgencia" onchange="filtrar()"><option value="">Todas las Urgencias</option><option>Alta</option><option>Media</option><option>Baja</option></select>
+      <input class="input-dark w-64" type="text" id="buscar" placeholder="🔍 Buscar..." oninput="filtrar()" />
       
-      <!-- 🤖 NUEVO FILTRO DE NORMAS ISO EXIGIDO POR EL INGENIERO -->
-      <select class="input-dark border border-indigo-500/30 text-indigo-300" id="filtro-iso" onchange="filtrar()">
-        <option value="">Todas las Normativas ISO</option>
-        <option value="ISO 45001">ISO 45001 (Seguridad / Planta)</option>
-        <option value="ISO 9001">ISO 9001 (Calidad Técnica)</option>
-        <option value="ISO 14001">ISO 14001 (Gestión Ambiental)</option>
+      <!-- FILTROS MEJORADOS -->
+      <select class="input-dark" id="filtro-estado" onchange="filtrar()">
+        <option value="">Todos los Estados</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="En Revisión">En Revisión</option>
+        <option value="Solucionado">Solucionado</option>
+        <option value="Registrado">Registrado</option>
+        <option value="Asignado">Asignado</option>
+        <option value="En Proceso">En Proceso</option>
+        <option value="Verificado">Verificado</option>
+      </select>
+      
+      <select class="input-dark" id="filtro-urgencia" onchange="filtrar()">
+        <option value="">Todas las Urgencias</option>
+        <option value="Alta">Alta</option>
+        <option value="Media">Media</option>
+        <option value="Baja">Baja</option>
+      </select>
+      
+      <!-- NUEVO FILTRO POR CATEGORÍA -->
+      <select class="input-dark border border-blue-500/30 text-blue-300" id="filtro-categoria" onchange="filtrar()">
+        <option value="">Todas las Categorías</option>
+        <option value="Hardware">Hardware</option>
+        <option value="Software">Software</option>
+        <option value="Red">Red</option>
+        <option value="Infraestructura">Infraestructura</option>
+      </select>
+      
+      <!-- NUEVO FILTRO POR RIESGO -->
+      <select class="input-dark border border-red-500/30 text-red-300" id="filtro-riesgo" onchange="filtrar()">
+        <option value="">Todos los Riesgos</option>
+        <option value="Alto">⚠️ Alto</option>
+        <option value="Medio">⚡ Medio</option>
+        <option value="Bajo">✅ Bajo</option>
+      </select>
+      
+      <!-- NUEVO FILTRO POR IMPACTO AMBIENTAL -->
+      <select class="input-dark border border-emerald-500/30 text-emerald-300" id="filtro-ambiental" onchange="filtrar()">
+        <option value="">Impacto Ambiental</option>
+        <option value="Sí">🌱 Con Impacto</option>
+        <option value="No">♻️ Sin Impacto</option>
       </select>
       
       <span id="conteo" class="text-xs font-mono text-gray-500 ml-auto font-bold"></span>
@@ -71,28 +129,33 @@
     </div>
 
     <div class="overflow-x-auto rounded-xl border border-white/5 shadow-2xl bg-slate-950/20">
-      <table class="w-full text-left border-collapse min-w-[1100px]">
+      <table class="w-full text-left border-collapse min-w-[1400px]">
         <thead>
           <tr class="bg-[#0d1524] text-gray-400 text-[10px] font-black uppercase tracking-wider border-b border-white/5">
             <th class="p-3.5 w-12">ID</th>
-            <th class="p-3.5">Normativa Aplicada</th>
             <th class="p-3.5">Alumno</th>
             <th class="p-3.5 w-16">PC</th>
-            <th class="p-3.5">Detalle Operacional del Problema</th>
-            <th class="p-3.5">Evaluación IPERC</th>
+            <th class="p-3.5">Problema</th>
+            <th class="p-3.5">Categoría</th>
+            <th class="p-3.5">Riesgo</th>
+            <th class="p-3.5">Impacto Ambiental</th>
+            <th class="p-3.5">Responsable</th>
+            <th class="p-3.5">Acción Correctiva</th>
+            <th class="p-3.5">Urgencia</th>
             <th class="p-3.5">Evidencia</th>
             <th class="p-3.5">Fecha</th>
-            <th class="p-3.5">Estado Operacional</th>
+            <th class="p-3.5">Estado</th>
           </tr>
         </thead>
         <tbody id="tbody" class="text-xs divide-y divide-white/5 bg-slate-900/40">
-          <tr><td colspan="9" class="text-center py-12 text-gray-500 italic font-mono">Cargando base de datos operacional...</td></tr>
+          <tr><td colspan="13" class="text-center py-12 text-gray-500 italic font-mono">Cargando base de datos operacional...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <div id="contenedor-reportes" class="hidden max-w-[1600px] mx-auto px-4 py-4 w-full flex-1 space-y-6">
+    <!-- Contenido de reportes (se mantiene igual) -->
     <div class="flex justify-between items-center card-custom p-4 bg-slate-900/40 border-l-4 border-emerald-500">
       <div>
         <h4 class="text-xs font-mono text-emerald-400 font-bold uppercase tracking-wider">🔒 Auditorías Internas e Inspección de Seguridad</h4>
@@ -135,7 +198,7 @@
       </div>
     </div>
 
-    <!-- SECCIÓN REFORMULADA CON EL CONCEPTO DE MATRIZ IPERC ASOLICITADO -->
+    <!-- SECCIÓN DE BITÁCORA IPERC -->
     <div class="card-custom p-5 bg-slate-900/80">
       <div class="flex items-center gap-2 border-b border-white/5 pb-3 mb-3">
         <span class="flex h-2.5 w-2.5 relative">
@@ -151,12 +214,12 @@
   <footer class="px-6 py-4 flex flex-wrap justify-between items-center text-[10px] text-gray-600 font-mono border-t border-white/5 bg-[#070c16]/50">
     <div class="flex items-center gap-2 text-emerald-400 font-bold bg-emerald-950/30 px-3 py-1 rounded-full border border-emerald-900/30 shadow-sm">
       <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span>ESTADO DEL SERVIDOR: ONLINE (Render Cloud Gateway)</span>
+      <span>ESTADO DEL SERVIDOR: ONLINE</span>
     </div>
     <div>© 2026 Universidad Nacional de Juliaca · Módulo Gerencial de Decisiones</div>
   </footer>
 
-  <!-- MODAL INTEGRADO DE CIERRE DE CASO SIG REFORMULADO COMO REGISTRO DE MEDIDA DE CONTROL IPERC -->
+  <!-- MODAL MEJORADO PARA CIERRE DE CASO -->
   <div id="modal-sig-overlay" class="hidden fixed inset-0 bg-black/85 z-50 items-center justify-center p-4">
     <div class="bg-slate-900 border-2 border-emerald-500/30 rounded-xl p-6 max-w-lg w-full relative shadow-2xl">
       <h3 class="text-sm font-black text-emerald-400 mb-1 flex items-center gap-2">
@@ -167,16 +230,22 @@
       </p>
       
       <div class="space-y-4">
+        <!-- NUEVO CAMPO: RESPONSABLE -->
         <div>
-          <label class="block text-[10px] font-black uppercase text-yellow-400 font-mono mb-1">🛠️ Plan de Acción Correctiva y Evidencia Técnica (ISO 9001 / 45001)</label>
+          <label class="block text-[10px] font-black uppercase text-blue-400 font-mono mb-1">👤 Responsable de la Atención (ISO 9001)</label>
+          <input id="sig-responsable" class="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white outline-none focus:border-blue-500 font-mono" placeholder="Ej: Ing. Carlos Pérez" />
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-black uppercase text-yellow-400 font-mono mb-1">🛠️ Plan de Acción Correctiva (ISO 9001 / 45001)</label>
           <div class="mb-3">
-  <label class="block text-[10px] font-black uppercase text-emerald-400 font-mono mb-1">🎯 Tipo de Control Aplicado (Jerarquía IPERC)</label>
-  <select id="sig-tipo-control" class="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white outline-none focus:border-emerald-500 font-mono">
-    <option value="[Ingeniería]">Control de Ingeniería (Aislamiento / Rediseño físico)</option>
-    <option value="[Eliminación/Sustitución]">Eliminación o Sustitución (Reemplazo completo del componente)</option>
-    <option value="[Administrativo]">Control Administrativo (Señalización / Capacitación / Mantenimiento)</option>
-  </select>
-</div>
+            <label class="block text-[10px] font-black uppercase text-emerald-400 font-mono mb-1">🎯 Tipo de Control (Jerarquía IPERC)</label>
+            <select id="sig-tipo-control" class="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white outline-none focus:border-emerald-500 font-mono">
+              <option value="[Ingeniería]">Control de Ingeniería (Aislamiento / Rediseño físico)</option>
+              <option value="[Eliminación/Sustitución]">Eliminación o Sustitución (Reemplazo completo del componente)</option>
+              <option value="[Administrativo]">Control Administrativo (Señalización / Capacitación / Mantenimiento)</option>
+            </select>
+          </div>
           <textarea id="sig-accion" class="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2.5 text-xs text-white outline-none focus:border-emerald-500 font-mono h-20" placeholder="Detalle la medida aplicada. Ej: Se reemplazó el conector defectuoso y se confinó el residuo al contenedor RAEE institucional."></textarea>
         </div>
         
@@ -189,7 +258,7 @@
 
       <div class="flex justify-end gap-2 mt-5">
         <button onclick="cerrarModalSIG()" class="bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-xs px-4 py-2 rounded-lg cursor-pointer transition">Cancelar</button>
-        <button id="btn-confirmar-sig" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-4 py-2 rounded-lg cursor-pointer transition">Certificar Control IPERC</button>
+        <button onclick="ejecutarCambioEstadoSIG()" id="btn-confirmar-sig" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-4 py-2 rounded-lg cursor-pointer transition">Certificar Control IPERC</button>
       </div>
     </div>
   </div>
@@ -236,10 +305,14 @@
       tbody.innerHTML = Array(5).fill(0).map(() => `
         <tr class="animate-pulse">
           <td class="p-4"><div class="skeleton-line w-8"></div></td>
-          <td class="p-4"><div class="skeleton-line w-28"></div></td>
           <td class="p-4"><div class="skeleton-line w-24"></div></td>
           <td class="p-4"><div class="skeleton-line w-12"></div></td>
           <td class="p-4"><div class="skeleton-line w-48"></div></td>
+          <td class="p-4"><div class="skeleton-line w-16"></div></td>
+          <td class="p-4"><div class="skeleton-line w-16"></div></td>
+          <td class="p-4"><div class="skeleton-line w-16"></div></td>
+          <td class="p-4"><div class="skeleton-line w-20"></div></td>
+          <td class="p-4"><div class="skeleton-line w-28"></div></td>
           <td class="p-4"><div class="skeleton-line w-16"></div></td>
           <td class="p-4"><div class="skeleton-line w-16"></div></td>
           <td class="p-4"><div class="skeleton-line w-28"></div></td>
@@ -263,12 +336,16 @@
     }
 
     function actualizarStats() {
-      const p = todos.filter(r => r.estado === "Pendiente").length;
-      const e = todos.filter(r => r.estado === "En Revisión").length;
-      const s = todos.filter(r => r.estado === "Solucionado").length;
+      const p = todos.filter(r => r.estado === "Pendiente" || r.estado === "Registrado").length;
+      const e = todos.filter(r => r.estado === "En Revisión" || r.estado === "En Proceso").length;
+      const s = todos.filter(r => r.estado === "Solucionado" || r.estado === "Verificado").length;
+      const riesgoAlto = todos.filter(r => r.riesgo === "Alto").length;
       
       $('s-total').innerText = todos.length;
-      $('s-pendiente').innerText = p; $('s-revision').innerText = e; $('s-solucionado').innerText = s;
+      $('s-pendiente').innerText = p; 
+      $('s-revision').innerText = e; 
+      $('s-solucionado').innerText = s;
+      $('s-riesgo-alto').innerText = riesgoAlto;
       $('txt-eficiencia').innerText = todos.length ? `${Math.round((s / todos.length) * 100)}%` : '0%';
 
       const hojas = todos.length * 2; 
@@ -276,8 +353,8 @@
       $('txt-co2').innerText = `${hojas * 10}g CO₂`;
 
       const badg = $('badge-notif');
-      if (p > 0) {
-        badg.innerText = p;
+      if (riesgoAlto > 0) {
+        badg.innerText = riesgoAlto;
         badg.classList.remove('hidden');
       } else {
         badg.classList.add('hidden');
@@ -288,16 +365,20 @@
       const q = $('buscar').value.toLowerCase();
       const est = $('filtro-estado').value;
       const urg = $('filtro-urgencia').value;
-      const isoFiltro = $('filtro-iso').value; // Captura el nuevo filtro de normas
+      const cat = $('filtro-categoria').value;
+      const ries = $('filtro-riesgo').value;
+      const amb = $('filtro-ambiental').value;
 
       const f = todos.filter(r => {
-        const t = `${r.nombre} ${r.pc_numero} ${r.problema}`.toLowerCase();
+        const t = `${r.nombre} ${r.apellido || ''} ${r.pc_numero} ${r.problema} ${r.correo}`.toLowerCase();
         const cumpleBusqueda = (!q || t.includes(q));
         const cumpleEstado = (!est || r.estado === est);
         const cumpleUrgencia = (!urg || r.urgencia === urg);
-        const cumpleIso = (!isoFiltro || r.problema.includes(isoFiltro));
+        const cumpleCategoria = (!cat || r.categoria === cat);
+        const cumpleRiesgo = (!ries || r.riesgo === ries);
+        const cumpleAmbiental = (!amb || r.impacto_ambiental === amb);
         
-        return cumpleBusqueda && cumpleEstado && cumpleUrgencia && cumpleIso;
+        return cumpleBusqueda && cumpleEstado && cumpleUrgencia && cumpleCategoria && cumpleRiesgo && cumpleAmbiental;
       });
 
       $('conteo').innerText = `${f.length} caso${f.length !== 1 ? 's' : ''}`;
@@ -306,39 +387,70 @@
 
     function renderizarTabla(data) {
       const tbody = $('tbody');
-      if (!data.length) { tbody.innerHTML = `<tr><td colspan="9" class="text-center py-10 text-gray-500 italic font-mono">Sin resultados.</td></tr>`; return; }
+      if (!data.length) { tbody.innerHTML = `<tr><td colspan="13" class="text-center py-10 text-gray-500 italic font-mono">Sin resultados.</td></tr>`; return; }
 
       tbody.innerHTML = data.map(r => {
-        const tieneFoto = r.foto && r.foto !== "null";
+        const tieneFoto = r.foto && r.foto !== "null" && r.foto !== "undefined";
         
-        // INTERPRETAR PREFIJOS INYECTADOS POR EL BACKEND PARA ARMAR LOS BADGES DINÁMICOS
-        let badgesHtml = "";
-        if (r.problema.includes("ISO 45001")) {
-          badgesHtml += `<span class="bg-red-950 text-red-400 border border-red-900/40 text-[9px] font-black font-mono px-1.5 py-0.5 rounded mr-1">ISO 45001</span>`;
+        // Badges de ISO
+        let badgesIso = "";
+        if (r.problema && r.problema.includes("ISO 45001")) {
+          badgesIso += `<span class="bg-red-950 text-red-400 border border-red-900/40 text-[9px] font-black font-mono px-1.5 py-0.5 rounded mr-1">ISO 45001</span>`;
         }
-        if (r.problema.includes("ISO 9001")) {
-          badgesHtml += `<span class="bg-blue-950 text-blue-400 border border-blue-900/40 text-[9px] font-black font-mono px-1.5 py-0.5 rounded mr-1">ISO 9001</span>`;
+        if (r.problema && r.problema.includes("ISO 9001")) {
+          badgesIso += `<span class="bg-blue-950 text-blue-400 border border-blue-900/40 text-[9px] font-black font-mono px-1.5 py-0.5 rounded mr-1">ISO 9001</span>`;
         }
-        if (r.problema.includes("ISO 14001")) {
-          badgesHtml += `<span class="bg-emerald-950 text-emerald-400 border border-emerald-900/40 text-[9px] font-black font-mono px-1.5 py-0.5 rounded mr-1">ISO 14001</span>`;
+        if (r.problema && r.problema.includes("ISO 14001")) {
+          badgesIso += `<span class="bg-emerald-950 text-emerald-400 border border-emerald-900/40 text-[9px] font-black font-mono px-1.5 py-0.5 rounded mr-1">ISO 14001</span>`;
         }
 
-        // Limpieza de cadena para quitar los metadatos de las ISO antes de pintar la celda del problema
-        let problemaLimpio = r.problema.includes('->') ? r.problema.split('->')[1] : r.problema;
+        // Limpiar problema para mostrar
+        let problemaLimpio = r.problema || '';
+        if (problemaLimpio.includes('->')) {
+          problemaLimpio = problemaLimpio.split('->')[1];
+        }
         if (problemaLimpio.includes('| [ACCION SIG]:')) {
           problemaLimpio = problemaLimpio.split('| [ACCION SIG]:')[0];
         }
+        if (problemaLimpio.includes('[ISO')) {
+          problemaLimpio = problemaLimpio.replace(/\[[^\]]*\]\s*-\s*/g, '');
+        }
+
+        // Badge de riesgo
+        const riesgoClass = r.riesgo ? `riesgo-${r.riesgo}` : 'riesgo-Bajo';
+        const impactoClass = r.impacto_ambiental === 'Sí' ? 'impacto-Si' : 'impacto-No';
 
         return `
         <tr class="hover:bg-slate-800/40 transition">
           <td class="p-3 font-mono text-gray-500 font-bold">${r.id}</td>
-          <td class="p-3 whitespace-nowrap">${badgesHtml}</td>
-          <td class="p-3 font-semibold text-white">${r.nombre}</td>
+          <td class="p-3 font-semibold text-white">
+            ${r.nombre} ${r.apellido || ''}
+            <div class="text-[9px] text-gray-500 font-mono">${r.correo || ''}</div>
+          </td>
           <td class="p-3 font-mono font-black text-yellow-300 text-sm">${r.pc_numero}</td>
-          <td class="p-3 text-gray-300 max-w-[280px] truncate" title="${r.problema}">${problemaLimpio}</td>
+          <td class="p-3 text-gray-300 max-w-[200px]">
+            <div class="truncate" title="${r.problema || ''}">${problemaLimpio}</div>
+            <div class="mt-1">${badgesIso}</div>
+          </td>
+          <td class="p-3">
+            <span class="badge bg-slate-700 text-white">${r.categoria || 'Software'}</span>
+          </td>
+          <td class="p-3">
+            <span class="badge ${riesgoClass}">${r.riesgo || 'Bajo'}</span>
+          </td>
+          <td class="p-3">
+            <span class="badge ${impactoClass}">${r.impacto_ambiental === 'Sí' ? '🌱 Sí' : '♻️ No'}</span>
+            ${r.tipo_residuo ? `<span class="text-[9px] text-gray-500 block">${r.tipo_residuo}</span>` : ''}
+          </td>
+          <td class="p-3 text-gray-400 text-[11px]">
+            ${r.responsable || '—'}
+          </td>
+          <td class="p-3 text-gray-400 text-[11px] max-w-[150px] truncate" title="${r.accion_correctiva || ''}">
+            ${r.accion_correctiva || '—'}
+          </td>
           <td class="p-3"><span class="badge u-${r.urgencia}">${r.urgencia}</span></td>
           <td class="p-3">
-            ${tieneFoto ? `<button onclick="verFoto('${r.foto}','${r.nombre}','${r.pc_numero}')" class="bg-slate-800 border border-slate-700 text-blue-400 text-[10px] px-2 py-1 rounded cursor-pointer hover:bg-blue-600 hover:text-white transition">📷 Ver foto</button>` : `<span class="text-gray-600 italic text-[11px]">Sin foto</span>`}
+            ${tieneFoto ? `<button onclick="verFoto('${r.foto}','${r.nombre}','${r.pc_numero}')" class="bg-slate-800 border border-slate-700 text-blue-400 text-[10px] px-2 py-1 rounded cursor-pointer hover:bg-blue-600 hover:text-white transition">📷 Ver</button>` : `<span class="text-gray-600 italic text-[11px]">Sin foto</span>`}
           </td>
           <td class="p-3 font-mono text-gray-400 text-[11px] whitespace-nowrap">
             ${(() => {
@@ -346,7 +458,6 @@
               const partes = r.fecha.split(' ');
               const fParte = partes[0];
               const hParte = partes[1] ? partes[1].substring(0, 5) : '';
-              if (fParte.includes('/')) return `${fParte} ${hParte ? '🕒 ' + hParte : ''}`;
               if (fParte.includes('-')) {
                 const [anio, mes, dia] = fParte.split('-');
                 return `${dia}/${mes}/${anio} ${hParte ? '🕒 ' + hParte : ''}`;
@@ -355,10 +466,14 @@
             })()}
           </td>
           <td class="p-3">
-            <select class="sel-estado sel-${r.estado.replace(' ', '_')}" onchange="cambiarEstado(${r.id}, this.value, this)">
+            <select class="sel-estado sel-${(r.estado || 'Pendiente').replace(' ', '_')}" onchange="cambiarEstado(${r.id}, this.value, this)">
               <option ${r.estado==="Pendiente"?'selected':''}>Pendiente</option>
+              <option ${r.estado==="Registrado"?'selected':''}>Registrado</option>
+              <option ${r.estado==="Asignado"?'selected':''}>Asignado</option>
               <option ${r.estado==="En Revisión"?'selected':''}>En Revisión</option>
+              <option ${r.estado==="En Proceso"?'selected':''}>En Proceso</option>
               <option ${r.estado==="Solucionado"?'selected':''}>Solucionado</option>
+              <option ${r.estado==="Verificado"?'selected':''}>Verificado</option>
             </select>
           </td>
         </tr>`;
@@ -366,30 +481,31 @@
     }
 
     async function cambiarEstado(id, nuevo_estado, el) {
-      if (nuevo_estado === "Solucionado") {
+      if (nuevo_estado === "Solucionado" || nuevo_estado === "Verificado") {
         idTemporalSIG = id;
         elTemporalSIG = el;
         estadoTemporalSIG = nuevo_estado;
         
-        $('sig-accion').value = ""; 
-        $('modal-sig-overlay').style.display = 'flex'; 
-        
-        const accion = `[IPERC - ${document.getElementById('sig-tipo-control').value}]: ${$('sig-accion').value.trim()}`;
+        $('sig-accion').value = "";
+        $('sig-responsable').value = "";
+        $('modal-sig-overlay').style.display = 'flex';
         return;
       }
 
-      await procesarCambioEstadoDirecto(id, nuevo_estado, el, "");
+      await procesarCambioEstadoDirecto(id, nuevo_estado, el, "", "");
     }
 
     function cerrarModalSIG() {
       $('modal-sig-overlay').style.display = 'none';
       if (elTemporalSIG) {
-        elTemporalSIG.value = todos.find(r => r.id === idTemporalSIG).estado;
+        const reg = todos.find(r => r.id === idTemporalSIG);
+        elTemporalSIG.value = reg ? reg.estado : "Pendiente";
       }
     }
 
     async function ejecutarCambioEstadoSIG() {
       const accionTexto = $('sig-accion').value.trim();
+      const responsable = $('sig-responsable').value.trim();
       const selectorControl = document.getElementById('sig-tipo-control');
       
       if (!accionTexto) {
@@ -397,33 +513,52 @@
         return;
       }
 
-      // Juntamos el tipo de control seleccionado con el texto que escribiste
+      if (!responsable) {
+        alert("❌ Error: Debe especificar el responsable de la atención.");
+        return;
+      }
+
       const tipoControl = selectorControl ? selectorControl.value : "[Control]";
       const accionCompleta = `${tipoControl} -> ${accionTexto}`;
 
       $('modal-sig-overlay').style.display = 'none';
-      await procesarCambioEstadoDirecto(idTemporalSIG, estadoTemporalSIG, elTemporalSIG, accionCompleta);
+      await procesarCambioEstadoDirecto(idTemporalSIG, estadoTemporalSIG, elTemporalSIG, accionCompleta, responsable);
     }
 
-    async function procesarCambioEstadoDirecto(id, nuevo_estado, el, accionMitigacion) {
+    async function procesarCambioEstadoDirecto(id, nuevo_estado, el, accionMitigacion, responsable) {
       el.disabled = true;
       try {
+        const body = { 
+          id, 
+          nuevo_estado
+        };
+        
+        if (accionMitigacion) {
+          body.accion_correctiva = accionMitigacion;
+        }
+        if (responsable) {
+          body.responsable = responsable;
+        }
+
         const res = await fetch("/api/incidencias/cambiar-estado", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            id, 
-            nuevo_estado, 
-            accion_mitigacion: accionMitigacion 
-          }),
+          body: JSON.stringify(body),
         });
+        
         if (!res.ok) throw new Error();
         
         const reg = todos.find(r => r.id === id); 
         if (reg) {
           reg.estado = nuevo_estado;
-          if (nuevo_estado === "Solucionado" && accionMitigacion) {
-            reg.problema = `${reg.problema} | [ACCION SIG]: ${accionMitigacion}`;
+          if (accionMitigacion) {
+            reg.accion_correctiva = accionMitigacion;
+          }
+          if (responsable) {
+            reg.responsable = responsable;
+          }
+          if (nuevo_estado === "Solucionado" || nuevo_estado === "Verificado") {
+            reg.fecha_solucion = new Date().toISOString();
           }
         }
         actualizarStats();
@@ -438,27 +573,29 @@
     }
 
     function renderizarGraficos() {
-      const p = todos.filter(r => r.estado === "Pendiente").length;
-      const e = todos.filter(r => r.estado === "En Revisión").length;
-      const s = todos.filter(r => r.estado === "Solucionado").length;
+      const p = todos.filter(r => r.estado === "Pendiente" || r.estado === "Registrado").length;
+      const e = todos.filter(r => r.estado === "En Revisión" || r.estado === "En Proceso" || r.estado === "Asignado").length;
+      const s = todos.filter(r => r.estado === "Solucionado" || r.estado === "Verificado").length;
 
       const labs = { "LAB 01": 0, "LAB 02": 0, "LAB 03": 0 };
       todos.forEach(r => {
-        if(r.problema.includes("LAB 01")) labs["LAB 01"]++;
-        else if(r.problema.includes("LAB 02")) labs["LAB 02"]++;
-        else if(r.problema.includes("LAB 03")) labs["LAB 03"]++;
+        if(r.problema && r.problema.includes("LAB 01")) labs["LAB 01"]++;
+        else if(r.problema && r.problema.includes("LAB 02")) labs["LAB 02"]++;
+        else if(r.problema && r.problema.includes("LAB 03")) labs["LAB 03"]++;
       });
 
       const bitacoraContainer = $('bitacora-sstd');
-      const criticos = todos.filter(r => r.problema.includes("ISO 45001") || r.urgencia === "Alta");
+      const criticos = todos.filter(r => (r.problema && r.problema.includes("ISO 45001")) || r.urgencia === "Alta" || r.riesgo === "Alto");
       
       if (!criticos.length) {
         bitacoraContainer.innerHTML = `<p class="text-gray-600 italic">No se registran vectores de riesgo crítico en la matriz IPERC.</p>`;
       } else {
         bitacoraContainer.innerHTML = criticos.map(c => {
-          const esInfra = c.problema.includes("ISO 45001");
-          let pLimpio = c.problema.includes('->') ? c.problema.split('->')[1] : c.problema;
+          const esInfra = c.problema && c.problema.includes("ISO 45001");
+          let pLimpio = c.problema || '';
+          if (pLimpio.includes('->')) pLimpio = pLimpio.split('->')[1];
           if (pLimpio.includes('| [ACCION SIG]:')) pLimpio = pLimpio.split('| [ACCION SIG]:')[0];
+          if (pLimpio.includes('[ISO')) pLimpio = pLimpio.replace(/\[[^\]]*\]\s*-\s*/g, '');
           
           return `
             <div class="p-2 bg-slate-950/40 border border-white/5 rounded-lg flex items-center justify-between">
@@ -476,7 +613,7 @@
                   }
                   return c.fecha;
                 })()}
-              </td>
+              </span>
             </div>`;
         }).join("");
       }
@@ -490,7 +627,7 @@
       chart1 = new Chart($('chartEstados'), {
         type: 'pie',
         data: {
-          labels: ['Pendientes', 'En Revisión', 'Solucionados'],
+          labels: ['Pendientes', 'En Proceso', 'Solucionados'],
           datasets: [{ data: [p, e, s], backgroundColor: ['#6366f1', '#eab308', '#10b981'], borderWidth: 0 }]
         },
         options: { 
@@ -521,8 +658,11 @@
     function exportarInformeSIG() {
       toast("📥 Compilando matriz de riesgos institucionales...");
       setTimeout(() => {
-        const encabezado = "ID,Origen,Usuario,Ubicacion_Equipo,Gravedad,Estado_Actual\n";
-        const filas = todos.map(r => `${r.id},UNAJ_PLANTA,${r.nombre},${r.pc_numero},${r.urgencia},${r.estado}`).join("\n");
+        const encabezado = "ID,Nombre,PC,Problema,Categoría,Riesgo,Impacto Ambiental,Responsable,Acción Correctiva,Urgencia,Estado,Fecha\n";
+        const filas = todos.map(r => {
+          const problemaLimpio = (r.problema || '').replace(/,/g, ';');
+          return `${r.id},${r.nombre},${r.pc_numero},"${problemaLimpio}",${r.categoria || 'Software'},${r.riesgo || 'Bajo'},${r.impacto_ambiental || 'No'},${r.responsable || ''},${(r.accion_correctiva || '').replace(/,/g, ';')},${r.urgencia},${r.estado},${r.fecha || ''}`;
+        }).join("\n");
         const blob = new Blob([encabezado + filas], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         const urlIso = URL.createObjectURL(blob);
