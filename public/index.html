@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Incidencias | UNAJ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --azul: #003087; --azul-m: #001a4d; --oro: #F5A800; --oscuro: #0a0f1e; --borde: #1f2937; }
+    
+    body { 
+      font-family: 'IBM Plex Sans', sans-serif; 
+      background-color: var(--oscuro); 
+      color: #e5e7eb; 
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    /* 🖼️ CAPA DEL FONDO UNIVERSITARIO OFICIAL */
+    .bg-campus-unaj {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image: url('https://scontent.fjul2-1.fna.fbcdn.net/v/t39.30808-6/581825082_1269825828496486_6086974292113371210_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeHC5zCVrFwatuUTwSKemHlcjNSQLvfWHg-M1JAu99YeDzyiAFKpId-5LA5TjHm18Bi8Th8tpRQkD11w6uQIgK2S&_nc_ohc=64HgRoWYprYQ7kNvwEaPCi8&_nc_oc=Ado_D25xBwb0st3TbjqGbvY6GPt1YIJmGq8uxXZUFMn-jHEcGTEN9ODJsgZGJrNWASw&_nc_zt=23&_nc_ht=scontent.fjul2-1.fna&_nc_gid=pPhxZoAOjBJQAXwd3R0vuQ&_nc_ss=7b2a8&oh=00_Af52vGnxja5bQQ_KKV-F93IjeBENJCWCEmc-NKHY4Vd5HQ&oe=6A130A9C'); 
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    /* Máscara oscura con opacidad equilibrada para no tapar el fondo */
+    .bg-overlay-sig {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-color: rgba(10, 15, 30, 0.85); 
+      background-image: linear-gradient(rgba(245,168,0,0.012) 1px, transparent 1px), linear-gradient(90deg, rgba(245,168,0,0.012) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+    .card-custom { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6); }
+    .input-dark { background: #111827; border: 1px solid var(--borde); border-radius: 7px; padding: 10px 14px; font-size: .85rem; color: #e5e7eb; outline: none; transition: border-color .2s; }
+    .input-dark:focus { border-color: var(--oro); }
+    .badge { padding: 2px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+    .u-Alta { background: #450a0a; color: #fca5a5; }
+    .u-Media { background: #451a03; color: #fcd34d; }
+    .u-Baja { background: #052e16; color: #86efac; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <div class="bg-campus-unaj"></div>
+  <div class="bg-overlay-sig"></div>
+
+  <div id="section-login" class="flex-1 flex flex-col items-center justify-center py-12 px-4 max-w-6xl mx-auto w-full">
+    <div class="text-center mb-8 w-full">
+      <span class="mono text-xs font-bold tracking-widest text-[var(--oro)] uppercase bg-slate-900/90 px-4 py-1.5 rounded-full border border-[var(--oro)]/30">• UNAJ · ÁREA DE SOFTWARE E INFRAESTRUCTURA •</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
+      
+      <div class="lg:col-span-5 card-custom p-8 border-t-2 border-[var(--oro)]/40 w-full">
+        <h2 class="text-2xl font-bold text-center tracking-tight text-white mb-1">Sistema de Incidencias SIG</h2>
+        <p class="text-xs text-center text-gray-400 mb-4">Laboratorios de Cómputo</p>
+
+        <div class="p-3 bg-slate-950/70 border border-white/5 rounded-xl mb-5 text-center">
+          <p class="text-[11px] text-gray-400 leading-relaxed">
+            Control operacional y mitigación de riesgos bajo los estándares internacionales <span class="text-white font-bold">ISO 9001</span> (Calidad) e <span class="text-white font-bold">ISO 14001</span> (Gestión Ambiental).
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-950/80 rounded-xl mb-6 border border-white/5">
+          <button id="tab-alumno" onclick="switchTab('alumno')" class="py-2.5 text-xs font-bold rounded-lg transition-all bg-[var(--oro)] text-black shadow-md cursor-pointer">👨‍🎓 Alumno</button>
+          <button id="tab-admin" onclick="switchTab('admin')" class="py-2.5 text-xs font-bold rounded-lg transition-all text-gray-400 hover:text-white cursor-pointer">🛠️ Administrador</button>
+        </div>
+
+        <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+          <div id="group-nombre">
+            <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-1.5">Nombre Completo</label>
+            <input type="text" id="login-nombre" placeholder="Ej:  maria rosa" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--oro)] transition-colors" required />
+          </div>
+          
+          <div>
+            <label id="label-identificador" class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-1.5">Correo Institucional</label>
+            <input type="text" id="login-identificador" placeholder="usuario@unaj.edu.pe" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--oro)] transition-colors" required />
+          </div>
+
+          <button type="submit" id="btn-login-submit" class="w-full bg-[var(--oro)] hover:bg-yellow-400 text-black font-bold text-xs uppercase tracking-widest py-3.5 rounded-xl cursor-pointer transition-all active:scale-[0.98]">Ingresar como Alumno →</button>
+        </form>
+      </div>
+
+      <div class="lg:col-span-7 space-y-4 text-left p-2">
+        <div class="inline-block px-3 py-1 bg-blue-950/40 border border-blue-900/30 rounded-lg">
+          <p class="mono text-[10px] font-bold text-blue-400 tracking-wider uppercase">📊 Guía de Control Operacional</p>
+        </div>
+        <h3 class="text-2xl font-black text-white tracking-tight">¿Cómo funciona el Reporte de Planta?</h3>
+        <p class="text-sm text-gray-300 leading-relaxed">
+          Esta plataforma permite a la comunidad académica de la <strong>UNAJ</strong> mapear en tiempo real las no conformidades técnicas de los laboratorios, garantizando una respuesta inmediata y el cuidado de la infraestructura.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div class="card-custom p-4 bg-slate-900/40 border-l-4 border-yellow-500">
+            <h4 class="text-xs font-bold text-white uppercase font-mono mb-1">📝 1. Identificar e Informar</h4>
+            <p class="text-[11px] text-gray-400 leading-relaxed">Selecciona tu laboratorio, ingresa el número de PC afectada y tipifica el error (Hardware, Software o Infraestructura riesgosas).</p>
+          </div>
+
+          <div class="card-custom p-4 bg-slate-900/40 border-l-4 border-indigo-500">
+            <h4 class="text-xs font-bold text-white uppercase font-mono mb-1">📸 2. Evidencia Fotográfica</h4>
+            <p class="text-[11px] text-gray-400 leading-relaxed">Sube una captura clara del problema. Esto permite al equipo de soporte diagnosticar el fallo antes de asistir a la planta física.</p>
+          </div>
+
+          <div class="card-custom p-4 bg-slate-900/40 border-l-4 border-emerald-500">
+            <h4 class="text-xs font-bold text-white uppercase font-mono mb-1">📉 3. Trazabilidad ISO 9001</h4>
+            <p class="text-[11px] text-gray-400 leading-relaxed">Cada reporte alimenta el indicador de Eficiencia y calcula el Tiempo de Respuesta (MTTR) para auditorías de acreditación.</p>
+          </div>
+
+          <div class="card-custom p-4 bg-slate-900/40 border-l-4 border-cyan-500">
+            <h4 class="text-xs font-bold text-white uppercase font-mono mb-1">🌱 4. Impacto Cero Papel</h4>
+            <p class="text-[11px] text-gray-400 leading-relaxed">Al digitalizar el flujo bajo la norma ISO 14001, eliminamos el uso de bitácoras físicas, reduciendo los residuos de oficina.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="section-alumno" class="hidden max-w-[1600px] mx-auto px-4 py-6 w-full flex-1">
+    <header class="p-5 card-custom mb-6 flex flex-wrap items-center justify-between gap-4 border-l-4 border-[var(--oro)]">
+      <div class="flex items-center gap-3">
+        <div class="text-2xl">👨‍🎓</div>
+        <div>
+          <p class="mono text-[10px] text-yellow-400 tracking-widest uppercase font-bold">UNAJ · Sistema Operativo de Planta</p>
+          <h1 class="text-lg font-black text-white tracking-tight">Portal de Reportes del Estudiante</h1>
+          <p class="text-xs text-gray-400 mt-0.5">Sesión: <span id="user-display-alumno" class="font-mono text-amber-300"></span></p>
+        </div>
+      </div>
+      <button onclick="logout()" class="mono text-xs text-red-400 hover:text-white bg-red-950/30 hover:bg-red-900/40 border border-red-900/50 px-4 py-2 rounded-xl transition cursor-pointer font-bold">✕ Cerrar Sesión</button>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-6">
+      
+      <!-- MEJORADO: TOOLTIPS INTEGRADOS EN PROTOCOLO SIG PASANDO EL MOUSE -->
+      <div class="md:col-span-1 lg:col-span-3 card-custom p-5 space-y-3 h-fit">
+        <h3 class="text-xs font-black tracking-wider text-yellow-400 uppercase border-b border-white/5 pb-2">📚 Protocolo SIG</h3>
+        <div class="space-y-2 text-[11px] text-gray-300">
+          <div class="p-2.5 bg-red-950/20 border border-red-900/20 rounded-xl cursor-help transition hover:bg-red-900/10" 
+               title="Aplica a: ISO 9001 (Calidad Técnica) e ISO 14001 (Gestión de Residuos RAEE). Monitorea el ciclo de vida del hardware retirado.">
+            <span class="font-bold text-red-400 block mb-0.5">💻 Hardware (HW)</span>
+            Fallas físicas en pantallas, periféricos o energía.
+          </div>
+          <div class="p-2.5 bg-blue-950/20 border border-blue-900/20 rounded-xl cursor-help transition hover:bg-blue-900/10" 
+               title="Aplica a: ISO 9001 (Calidad del Servicio Educativo). Garantiza la disponibilidad lógica y continuidad de las herramientas del laboratorio.">
+            <span class="font-bold text-blue-400 block mb-0.5">⚙️ Software (SW)</span>
+            Sistemas congelados, pantallazos o falta de IDEs.
+          </div>
+          <div class="p-2.5 bg-amber-950/20 border border-amber-900/20 rounded-xl cursor-help transition hover:bg-amber-900/10" 
+               title="Aplica a: Matriz IPERC / ISO 45001 (Seguridad y Salud Ocupacional). Identificación de peligros inmediatos en la infraestructura de planta física.">
+            <span class="font-bold text-amber-400 block mb-0.5">🔌 Infraestructura (INF)</span>
+            Riesgos del entorno (ISO 45001).
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-2 lg:col-span-5 card-custom p-6 space-y-4">
+        <h3 class="text-sm font-black tracking-wider text-white uppercase border-b border-white/5 pb-2 flex items-center gap-2"><span class="text-[var(--oro)]">📝</span> Registrar Incidencia en Aula</h3>
+        <form id="form-reporte" onsubmit="handleReporte(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">Ubicación</label>
+              <select id="rep-lab" class="w-full input-dark py-2.5 bg-slate-950" required>
+                <option value="LAB 01 - Software">LAB 01 - Software</option>
+                <option value="LAB 02 - Redes">LAB 02 - Redes</option>
+                <option value="LAB 03 - General">LAB 03 - General</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">N.° de PC</label>
+              <input type="text" id="rep-pc" placeholder="Ej: PC-12" class="w-full input-dark" required />
+            </div>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">Nivel de Gravedad</label>
+            <select id="rep-urgencia" class="w-full input-dark py-2.5 bg-slate-950" onchange="this.value==='Alta'&&toast('⚠️ Urgencia Crítica seleccionada','err')" required>
+              <option value="Baja">Baja Recurrencia 🟢</option>
+              <option value="Media">Media — Requiere Soporte 🟡</option>
+              <option value="Alta">Crítica — Detiene Clase 🔴</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">Tipo de Problema Notado</label>
+            <select id="rep-problema" class="w-full input-dark py-2.5 bg-slate-950" required>
+              <optgroup label="💻 HARDWARE">
+                <option value="[HW] Pantalla dañada / Sin señal">[HW] Pantalla dañada / Sin señal</option>
+                <option value="[HW] CPU no enciende / Pitidos">[HW] CPU no enciende / Pitidos</option>
+                <option value="[HW] Teclado o Mouse inoperante">[HW] Teclado o Mouse inoperante</option>
+              </optgroup>
+              <optgroup label="⚙️ SOFTWARE">
+                <option value="[SW] Falta IDES (VS Code, Node, Python)">[SW] Falta IDES (VS Code, Node, Python)</option>
+                <option value="[SW] Bloqueo de Windows / Pantalla Azul">[SW] Bloqueo de Windows / Pantalla Azul</option>
+              </optgroup>
+              <optgroup label="⚠️ INFRAESTRUCTURA">
+                <option value="[INF] Canaleta rota / Cables expuestos">[INF] Canaleta rota / Cables expuestos</option>
+                <option value="[INF] Conector de red RJ45 roto">[INF] Conector de red RJ45 roto</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">Detalles Adicionales / Explicación (Opcional)</label>
+            <textarea id="rep-detalles-extra" class="w-full bg-[#111827] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[var(--oro)] transition-colors font-mono h-20" placeholder="Escriba aquí si desea agregar más detalles o explicar mejor el problema..."></textarea>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">Evidencia Fotográfica</label>
+            <div class="border-2 border-dashed border-white/10 hover:border-[var(--oro)]/50 rounded-xl p-4 text-center transition bg-slate-950/40 relative group cursor-pointer">
+              <input type="file" id="rep-foto" accept="image/*" onchange="mostrarPreview(this)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" />
+              <div id="drop-text"><p class="text-xs text-gray-300 font-bold group-hover:text-[var(--oro)]">📸 Subir o capturar evidencia fotográfica</p></div>
+              <div id="preview-container" class="hidden mt-1 flex flex-col items-center gap-1">
+                <img id="preview-img" src="" class="h-20 object-contain rounded-lg border border-white/10" />
+                <span class="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">✓ Imagen cargada</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-slate-950/50 border border-white/5 rounded-xl p-3 space-y-2 text-[11px] text-gray-400">
+            <label class="flex items-start gap-2 cursor-pointer select-none"><input type="checkbox" class="mt-0.5 rounded accent-[var(--oro)]" required /><span>He verificado las conexiones básicas de energía/red.</span></label>
+            <label class="flex items-start gap-2 cursor-pointer select-none"><input type="checkbox" class="mt-0.5 rounded accent-[var(--oro)]" required /><span>Afecta directamente el desarrollo normal del laboratorio.</span></label>
+          </div>
+          <button type="submit" class="w-full bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition active:scale-[0.99] mono text-xs uppercase tracking-wider">Enviar Incidencia Registrada →</button>
+        </form>
+      </div>
+
+      <div class="md:col-span-1 lg:col-span-4 card-custom p-5 space-y-4">
+        <h3 class="text-xs font-black tracking-wider text-yellow-400 uppercase border-b border-white/5 pb-2">📋 Mis Reportes Enviados</h3>
+        <div class="overflow-y-auto max-h-[480px] space-y-2.5 pr-1" id="lista-reportes-alumno"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center py-4 text-[10px] text-gray-600 font-mono border-t border-white/5 mt-6 relative z-10">
+    © 2026 Universidad Nacional de Juliaca · Software y Sistemas SIG
+  </footer>
+
+  <div id="toast" class="fixed bottom-5 right-5 p-3 rounded-lg text-xs font-bold text-white bg-emerald-950 border border-emerald-500/30 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 transform translate-y-2 [&.show]:opacity-100 [&.show]:translate-y-0 [&.err]:bg-red-950"></div>
+
+  <script>
+    let currentRole = 'alumno';
+    let sessionUser = null;
+    const $ = id => document.getElementById(id);
+
+    function toast(msg, type = "ok") {
+      const t = $('toast'); t.innerText = msg;
+      t.className = `fixed bottom-5 right-5 p-3 rounded-lg text-xs font-bold text-white shadow-2xl transition-all duration-300 transform show ${type==='err'?'bg-red-950 border border-red-500/30':'bg-emerald-950 border border-emerald-500/30'}`;
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function switchTab(role) {
+      currentRole = role;
+      $('tab-alumno').className = role === 'alumno' ? "py-2.5 text-xs font-bold rounded-lg transition-all bg-[var(--oro)] text-black shadow-md cursor-pointer" : "py-2.5 text-xs font-bold rounded-lg transition-all text-gray-400 hover:text-white cursor-pointer";
+      $('tab-admin').className = role === 'admin' ? "py-2.5 text-xs font-bold rounded-lg transition-all bg-[var(--oro)] text-black shadow-md cursor-pointer" : "py-2.5 text-xs font-bold rounded-lg transition-all text-gray-400 hover:text-white cursor-pointer";
+      $('group-nombre').style.display = role === 'alumno' ? "block" : "none";
+      $('login-nombre').required = role === 'alumno';
+      $('label-identificador').innerText = role === 'alumno' ? "Correo Institucional" : "Clave de Acceso Admin";
+      $('login-identificador').placeholder = role === 'alumno' ? "usuario@unaj.edu.pe" : "••••••••";
+      $('login-identificador').type = role === 'alumno' ? "text" : "password";
+      $('btn-login-submit').innerText = role === 'alumno' ? "Ingresar como Alumno →" : "Ingresar como Administrador →";
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const iden = $('login-identificador').value.trim();
+      if (currentRole === 'alumno') {
+        if(iden.includes('@unaj.edu.pe')) {
+          const nom = $('login-nombre').value;
+          sessionUser = { correo: iden, nombre: nom.toUpperCase() };
+          
+          document.querySelectorAll('.bg-campus-unaj, .bg-overlay-sig').forEach(el => el.style.display = 'none');
+          
+          $('section-login').classList.add("hidden");
+          $('section-alumno').classList.remove("hidden");
+          $('user-display-alumno').innerText = `${nom} (${iden})`;
+          toast("👋 Acceso concedido al Portal SIG.");
+          cargarIncidenciasAlumno();
+        } else { toast("❌ Debe usar un correo institucional", "err"); }
+      } else {
+        if (iden === 'admin' || iden === 'admin123' || iden === 'xavier@unaj.edu.pe' || iden === 'soporte1@unaj.edu.pe') {
+          window.location.href = '/admin';
+        } else { toast("❌ Clave administrativa incorrecta", "err"); }
+      }
+    }
+
+    const logout = () => { window.location.reload(); };
+
+    const mostrarPreview = (input) => {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          $('preview-img').src = e.target.result;
+          $('preview-container').classList.remove("hidden");
+          $('drop-text').classList.add("hidden");
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    async function handleReporte(e) {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('nombre', sessionUser.nombre);
+      formData.append('apellido', 'Estudiante');
+      formData.append('correo', sessionUser.correo);
+      formData.append('pc_numero', $('rep-pc').value);
+      
+      let problemaFinal = `${$('rep-lab').value} -> ${$('rep-problema').value}`;
+      const extra = $('rep-detalles-extra').value.trim();
+      if (extra) {
+        problemaFinal += ` | [Detalle]: ${extra}`;
+      }
+      
+      formData.append('problema', problemaFinal);
+      formData.append('urgencia', $('rep-urgencia').value);
+      if ($('rep-foto').files[0]) formData.append('foto', $('rep-foto').files[0]);
+
+      try {
+        const res = await fetch('/api/reportar', { method: 'POST', body: formData });
+        if (res.ok) {
+          toast("✅ Incidencia guardada en planta.");
+          $('form-reporte').reset();
+          $('preview-container').classList.add('hidden');
+          $('drop-text').classList.remove('hidden');
+          cargarIncidenciasAlumno();
+        } else toast("❌ Error de registro", "err");
+      } catch { toast("❌ Error de comunicación", "err"); }
+    }
+
+    async function cargarIncidenciasAlumno() {
+      try {
+        const res = await fetch("/api/admin/incidencias");
+        const datos = await res.json();
+        const lista = $('lista-reportes-alumno'); lista.innerHTML = "";
+        const misReportes = datos.filter(r => r.correo === sessionUser.correo);
+        if(!misReportes.length) {
+          lista.innerHTML = `<p class="text-xs text-gray-500 italic py-4 text-center">No registras solicitudes hoy.</p>`;
+          return;
+        }
+        misReportes.forEach(r => {
+          let textoRenderizado = r.problema;
+          if (textoRenderizado.includes('->')) {
+            const fragmentos = textoRenderizado.split('->');
+            textoRenderizado = fragmentos[fragmentos.length - 1]; 
+          }
+          if (textoRenderizado.includes('| [ACCION SIG]:')) {
+            textoRenderizado = textoRenderizado.split('| [ACCION SIG]:')[0];
+          }
+
+          lista.innerHTML += `
+            <div class="p-3 bg-slate-900/60 border border-white/5 rounded-xl text-xs space-y-1.5">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-yellow-400 font-mono text-[13px]">${r.pc_numero}</span>
+                <span class="badge u-${r.urgencia}">${r.urgencia}</span>
+              </div>
+              <p class="text-gray-300 truncate" title="${textoRenderizado}">${textoRenderizado}</p>
+              <div class="flex justify-between items-center text-[10px] text-gray-500 pt-1 border-t border-white/5 font-mono">
+                <span>📅 ${r.fecha ? r.fecha.split(' ')[0] : '—'}</span>
+                <span class="font-bold text-indigo-400 uppercase">${r.estado}</span>
+              </div>
+            </div>`;
+        });
+      } catch (err) { console.log("Error sync.", err); }
+    }
+  </script>
+</body>
+</html>
